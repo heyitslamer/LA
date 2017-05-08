@@ -12,13 +12,17 @@
 void imprime_saida(ESTADO e);
 
 int posicao_valida(int x, int y) {
-	return x >= 0 && y >= 0 && x < TAM && y < TAM;
+	return (x >= 0 && y >= 0 && x < TAM && y < TAM);
 }
 
 void imprime_casa(int x, int y) {
-	char *cor[] = {"#FFFFFF", "#FFFFFF"};
+	char *cor[] = {"#7C7474", "#FFFFFF"};
 	int idx = (x + y) % 2;
 	QUADRADO(x, y,ESCALA, cor[idx]);
+}
+
+void imprime_casa_transparente(int x, int y) {
+	QUADRADO_TRANS(x, y, ESCALA);
 }
 
 int posicao_igual(POSICAO p, int x, int y) {
@@ -127,8 +131,8 @@ ESTADO inicializar() {
 	e.jog.x = 5;
 	e.jog.y = 9;
 	e = inicializar_saida(e);
-	e = inicializar_inimigos(e, 20);
-	e = inicializar_obstaculos(e, 25);
+	e = inicializar_inimigos(e, 10);
+	e = inicializar_obstaculos(e, 10);
 	return e;
 }
 
@@ -147,11 +151,14 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 	}
 	sprintf(link, "http://localhost/cgi-bin/exemplo?%s", estado2str(novo));
 	ABRIR_LINK(link);
-	imprime_casa(x, y);
+	if(e.fim.x == x && e.fim.y == y) 
+		imprime_casa_transparente(x, y);
+	else
+		imprime_casa(x, y);
 	FECHAR_LINK;
 }
 
-//tudo imprime_casa_transparente
+//to do imprime_casa_transparente
 
 void imprime_movimentos(ESTADO e) {
 	int dx, dy;
