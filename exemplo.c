@@ -117,11 +117,8 @@ ESTADO inicializar_obstaculos(ESTADO e, int num) {
 }
 
 ESTADO inicializar_saida(ESTADO e) {
-	int x, y;
-	x = random() % TAM;
-	y = random() % TAM;
-	e.fim.x = x;
-	e.fim.y = y;
+	e.fim.x = 9;
+	e.fim.y = 0;
 
 	return e;
 }
@@ -141,21 +138,21 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 	int x = e.jog.x + dx;
 	int y = e.jog.y + dy;
 	char link[MAX_BUFFER];
-	if(!posicao_valida(x, y) || (posicao_ocupada(e, x, y) && e.fim.x != x))
-		return;
-	if(casa_saida(e, x, y)) {
-		novo = inicializar();
-	} else {
-		novo.jog.x = x;
-		novo.jog.y = y;
+	if(posicao_valida(x, y) && !tem_obstaculo(e, x, y)) {
+		if(casa_saida(e, x, y)) {
+			novo = inicializar();
+		} else {
+			novo.jog.x = x;
+			novo.jog.y = y;
+		}
+		sprintf(link, "http://localhost/cgi-bin/exemplo?%s", estado2str(novo));
+		ABRIR_LINK(link);
+		if(e.fim.x == x && e.fim.y == y) 
+			imprime_casa_transparente(x, y);
+		else
+			imprime_casa_transparente(x, y);
+		FECHAR_LINK;
 	}
-	sprintf(link, "http://localhost/cgi-bin/exemplo?%s", estado2str(novo));
-	ABRIR_LINK(link);
-	if(e.fim.x == x && e.fim.y == y) 
-		imprime_casa_transparente(x, y);
-	else
-		imprime_casa(x, y);
-	FECHAR_LINK;
 }
 
 //to do imprime_casa_transparente
@@ -166,7 +163,7 @@ void imprime_movimentos(ESTADO e) {
 	for(dx = -1; dx <= 1; dx++)
 		for(dy = -1; dy <= 1; dy++)
 			if (dx != 0 || dy != 0)
-			imprime_movimento(e, dx, dy);
+				imprime_movimento(e, dx, dy);
 }
 
 void imprime_jogador(ESTADO e) {
@@ -201,16 +198,26 @@ int main() {
 	int x, y;
 	ESTADO e = ler_estado(getenv("QUERY_STRING"));
 
+	/*
+	e = mata_monstros(e);
+	// percorrer array de inimigos, ver se coincide com jogador e remover
+	e = matar_jogador(e);
+	// ve a dist entre cada jogador e inimigos,  se tiverem em casa para tirar dano tira, verifica se jogador morreu, imprime ecra KO!
+	e = mover_inimigos(e);
+	// ver se pos ta ocupada. mover inicialmente aletoriamente(entre -1 e 1), e.g prov de monstro se mexer 
+	*/
+
 	COMECAR_HTML;
 	ABRIR_SVG(600, 600);
 	for(y = 0; y < 10; y++)
 		for(x = 0; x < 10; x++)
 				imprime_casa(x, y);
 
+	imprime_inimigos(e);
 	imprime_saida(e);
 	imprime_jogador(e);
-	imprime_inimigos(e);
 	imprime_obstaculos(e);
+
 
 	FECHAR_SVG;
 

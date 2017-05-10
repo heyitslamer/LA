@@ -30,7 +30,7 @@ typedef struct estado {
 	char num_inimigos;
 	/** O nº de obstáculos */
 	char num_obstaculos;
-	/** Score atual **/
+	/** Score atual */
 	unsigned int score;
 	/** Array com a posição dos inimigos */
 	POSICAO inimigo[MAX_INIMIGOS];
