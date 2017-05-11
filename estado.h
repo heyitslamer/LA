@@ -7,10 +7,10 @@ Definição do estado e das funções que convertem estados em strings e vice-ve
 */
 
 /** \brief O nº máximo de inimigos */
-#define MAX_INIMIGOS		100
+#define MAX_INIMIGOS		30
 
 /** \brief O nº máximo de obstáculos */
-#define MAX_OBSTACULOS		100
+#define MAX_OBSTACULOS		30
 
 /**
 \brief Estrutura que armazena uma posição
@@ -32,6 +32,8 @@ typedef struct estado {
 	char num_obstaculos;
 	/** Score atual */
 	unsigned int score;
+	/** vida do jogador */
+	int vida;
 	/** Array com a posição dos inimigos */
 	POSICAO inimigo[MAX_INIMIGOS];
 	/** Array com a posição dos obstáculos */

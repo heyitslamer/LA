@@ -130,6 +130,8 @@ ESTADO inicializar() {
 	e = inicializar_saida(e);
 	e = inicializar_inimigos(e, 10);
 	e = inicializar_obstaculos(e, 10);
+	e.vida = 3;
+	e.score = 0;
 	return e;
 }
 
@@ -147,10 +149,7 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 		}
 		sprintf(link, "http://localhost/cgi-bin/exemplo?%s", estado2str(novo));
 		ABRIR_LINK(link);
-		if(e.fim.x == x && e.fim.y == y) 
-			imprime_casa_transparente(x, y);
-		else
-			imprime_casa_transparente(x, y);
+		imprime_casa_transparente(x, y);
 		FECHAR_LINK;
 	}
 }
@@ -193,15 +192,69 @@ void imprime_obstaculos(ESTADO e) {
 		IMAGEM(e.obstaculo[i].x, e.obstaculo[i].y, ESCALA, "lava_pool1.png");
 }
 
+ESTADO swap_ini(ESTADO e, int x) {
+
+	POSICAO tmp = e.inimigo[x];
+	e.inimigo[x] = e.inimigo[(int)e.num_inimigos - 1];
+	e.inimigo[(int)e.num_inimigos - 1] = tmp;
+
+	return e;
+	
+}
+
+ESTADO mata_monstros(ESTADO e) {
+	
+	int i;
+
+	for(i = 0; i < e.num_inimigos; i++) {
+		if(e.jog.x == e.inimigo[i].x && e.jog.y == e.inimigo[i].y) {
+			e = swap_ini(e, i);
+			e.num_inimigos--;
+			e.score++;
+			break;
+		}
+	}
+
+	return e;
+}
+
+/*void fim_jogo() {
+
+		char link[MAX_BUFFER] = "http://localhost/cgi-bin/exemplo";
+		ABRIR_LINK(link);
+		QUADRADO(0, 0, 600, "#FFFFFF");
+		FECHAR_LINK;
+
+} */
+
+
+ESTADO mata_jogador(ESTADO e) {
+
+	int dx, dy;
+
+	for(dx = -1; dx <= 1; dx++)
+		for(dy = -1; dy <= 1; dy++)
+			if (dx != 0 || dy != 0)
+				if(tem_inimigo(e, e.jog.x + dx, e.jog.y + dy))
+					e.vida--;
+
+	//if(e.vida <= 0)
+	//	fim_jogo();
+
+	return e;
+}
+
 int main() {
 	srandom(time(NULL));
 	int x, y;
 	ESTADO e = ler_estado(getenv("QUERY_STRING"));
 
-	/*
+
 	e = mata_monstros(e);
 	// percorrer array de inimigos, ver se coincide com jogador e remover
-	e = matar_jogador(e);
+	
+	e = mata_jogador(e);
+	/*
 	// ve a dist entre cada jogador e inimigos,  se tiverem em casa para tirar dano tira, verifica se jogador morreu, imprime ecra KO!
 	e = mover_inimigos(e);
 	// ver se pos ta ocupada. mover inicialmente aletoriamente(entre -1 e 1), e.g prov de monstro se mexer 
