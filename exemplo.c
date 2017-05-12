@@ -58,7 +58,7 @@ int posicao_ocupada(ESTADO e, int x, int y) {
 	//return tem inimigo(e, x, y) || tem_obstaculo(e, x, y)
 	if (tem_inimigo(e, x, y) || tem_obstaculo(e, x, y) || tem_jogador(e, x, y) || casa_saida(e, x, y))
 		return 1;
-	
+
 	return 0;
 }
 
@@ -192,6 +192,12 @@ void imprime_obstaculos(ESTADO e) {
 		IMAGEM(e.obstaculo[i].x, e.obstaculo[i].y, ESCALA, "lava_pool1.png");
 }
 
+void imprime_vida(ESTADO e) {
+	ABRIR_TEXTO;
+	VIDA(e.vida);
+	FECHAR_TEXTO;
+}
+
 ESTADO swap_ini(ESTADO e, int x) {
 
 	POSICAO tmp = e.inimigo[x];
@@ -199,11 +205,11 @@ ESTADO swap_ini(ESTADO e, int x) {
 	e.inimigo[(int)e.num_inimigos - 1] = tmp;
 
 	return e;
-	
+
 }
 
 ESTADO mata_monstros(ESTADO e) {
-	
+
 	int i;
 
 	for(i = 0; i < e.num_inimigos; i++) {
@@ -219,13 +225,12 @@ ESTADO mata_monstros(ESTADO e) {
 }
 
 void fim_jogo() {
+		//COMECAR_HTML;
+		//ABRIR_SVG(600, 600);
+		IMAGEM(0, 0, 300, "hqdefault.jpg");
+		//FECHAR_SVG;
 
-		char link[MAX_BUFFER] = "http://localhost/cgi-bin/exemplo";
-		ABRIR_LINK(link);
-		QUADRADO(300, 300, 100, "#FFFFFF");
-		FECHAR_LINK;
-
-} 
+}
 
 
 void mata_jogador(ESTADO *e) {
@@ -242,8 +247,8 @@ void mata_jogador(ESTADO *e) {
 	}
 
 	if(e->vida <= 0)
-		*e = inicializar();
-
+		//*e = inicializar();
+		fim_jogo();
 }
 
 
@@ -255,12 +260,12 @@ int main() {
 
 	e = mata_monstros(e);
 	// percorrer array de inimigos, ver se coincide com jogador e remover
-	
-	mata_jogador(&e);
-	
+
+	//mata_jogador(&e);
+
 	/*
 	e = mover_inimigos(e);
-	// ver se pos ta ocupada. mover inicialmente aletoriamente(entre -1 e 1), e.g prov de monstro se mexer 
+	// ver se pos ta ocupada. mover inicialmente aletoriamente(entre -1 e 1), e.g prov de monstro se mexer
 	*/
 
 	COMECAR_HTML;
@@ -269,10 +274,12 @@ int main() {
 		for(x = 0; x < 10; x++)
 				imprime_casa(x, y);
 
+	mata_jogador(&e);
 	imprime_inimigos(e);
 	imprime_saida(e);
 	imprime_jogador(e);
 	imprime_obstaculos(e);
+	imprime_vida(e);
 
 
 	FECHAR_SVG;
