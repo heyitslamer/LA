@@ -218,31 +218,34 @@ ESTADO mata_monstros(ESTADO e) {
 	return e;
 }
 
-/*void fim_jogo() {
+void fim_jogo() {
 
 		char link[MAX_BUFFER] = "http://localhost/cgi-bin/exemplo";
 		ABRIR_LINK(link);
-		QUADRADO(0, 0, 600, "#FFFFFF");
+		QUADRADO(300, 300, 100, "#FFFFFF");
 		FECHAR_LINK;
 
-} */
+} 
 
 
-ESTADO mata_jogador(ESTADO e) {
+void mata_jogador(ESTADO *e) {
 
 	int dx, dy;
 
-	for(dx = -1; dx <= 1; dx++)
+	for(dx = -1; dx <= 1; dx++) {
+		if(e -> vida <= 0)
+			break;
 		for(dy = -1; dy <= 1; dy++)
 			if (dx != 0 || dy != 0)
-				if(tem_inimigo(e, e.jog.x + dx, e.jog.y + dy))
-					e.vida--;
+				if(tem_inimigo(*e, e->jog.x + dx, e->jog.y + dy))
+					e->vida--;
+	}
 
-	//if(e.vida <= 0)
-	//	fim_jogo();
+	if(e->vida <= 0)
+		*e = inicializar();
 
-	return e;
 }
+
 
 int main() {
 	srandom(time(NULL));
@@ -253,9 +256,9 @@ int main() {
 	e = mata_monstros(e);
 	// percorrer array de inimigos, ver se coincide com jogador e remover
 	
-	e = mata_jogador(e);
+	mata_jogador(&e);
+	
 	/*
-	// ve a dist entre cada jogador e inimigos,  se tiverem em casa para tirar dano tira, verifica se jogador morreu, imprime ecra KO!
 	e = mover_inimigos(e);
 	// ver se pos ta ocupada. mover inicialmente aletoriamente(entre -1 e 1), e.g prov de monstro se mexer 
 	*/
