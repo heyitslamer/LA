@@ -53,9 +53,6 @@ Macros úteis para gerar CGIs
 #define QUADRADO_TRANS(X, Y, ESCALA)		printf("<rect x=%d y=%d width=%d height=%d opacity=0 />\n", \
 												ESCALA * X, ESCALA* Y, ESCALA, ESCALA);
 
-#define ABRIR_TEXTO								printf("<p>\n");
-#define VIDA(VIDA)								printf("Ainda tens %d vidas.\n", VIDA);
-#define FECHAR_TEXTO							printf("</p>\n");
 /**
 \brief Macro para abrir um link
 @param link O caminho para o link
