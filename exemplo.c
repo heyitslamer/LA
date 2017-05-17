@@ -10,6 +10,7 @@
 #define ESCALA			40
 
 void imprime_saida(ESTADO e);
+void guarda_jogo(ESTADO e);
 
 int posicao_valida(int x, int y) {
 	return (x >= 0 && y >= 0 && x < TAM && y < TAM);
@@ -58,7 +59,7 @@ int posicao_ocupada(ESTADO e, int x, int y) {
 	//return tem inimigo(e, x, y) || tem_obstaculo(e, x, y)
 	if (tem_inimigo(e, x, y) || tem_obstaculo(e, x, y) || tem_jogador(e, x, y) || tem_casa_saida(e, x, y))
 		return 1;
-	
+
 	return 0;
 }
 
@@ -151,6 +152,7 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 		ABRIR_LINK(link);
 		imprime_casa_transparente(x, y);
 		FECHAR_LINK;
+
 	}
 }
 
@@ -199,11 +201,11 @@ ESTADO swap_ini(ESTADO e, int x) {
 	e.inimigo[(int)e.num_inimigos - 1] = tmp;
 
 	return e;
-	
+
 }
 
 ESTADO mata_monstros(ESTADO e) {
-	
+
 	int i;
 
 	for(i = 0; i < e.num_inimigos; i++) {
@@ -271,21 +273,27 @@ ESTADO mover_inimigos(ESTADO e) {
 	return e;
 }
 
+void guarda_jogo(ESTADO e) {
+	char *state = estado2str(e);
+	FILE *save = fopen("save.txt", "w+");
+	fprintf(save, "%s", state);
+	fclose(save);
+}
+
 
 int main() {
 	srandom(time(NULL));
 	int x, y;
 	ESTADO e = ler_estado(getenv("QUERY_STRING"));
 
-
 	e = mata_monstros(e);
 	// percorrer array de inimigos, ver se coincide com jogador e remover
-	
+
 	e = mata_jogador(e);
-	
+
 	e = mover_inimigos(e);
-	// ver se pos ta ocupada. mover inicialmente aletoriamente(entre -1 e 1), e.g prov de monstro se mexer 
-	
+	// ver se pos ta ocupada. mover inicialmente aletoriamente(entre -1 e 1), e.g prov de monstro se mexer
+
 
 	COMECAR_HTML;
 	ABRIR_SVG(600, 600);
@@ -306,8 +314,8 @@ int main() {
 	imprime_jogador(e);
 	imprime_obstaculos(e);
 
+
 	}
 	FECHAR_SVG;
-
 	return 0;
 }
