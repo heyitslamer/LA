@@ -280,6 +280,38 @@ void guarda_jogo(ESTADO e) {
 	fclose(save);
 }
 
+void inicializar_five_best() {
+	FILE *scores = fopen("score.txt", "r+");
+	for(int i = 0; i < 5; i++) {
+		fputs("0\n", scores);
+	}
+	fclose(scores);
+}
+
+void five_best(ESTADO e) {
+	FILE *scores = fopen("scores.txt", "r+");
+	int bestfive[5];
+	int i;
+	//este loop percorre o ficheiro e passa todos os scores para um array
+	for(i = 0; i < 5; i++) {
+		fscanf(scores, "%d", bestfive+i);
+		scores++;
+	}
+	//este loop insere o score atual no array e remove o mais pequeno
+	for(int k = 0; k < 5; k++) {
+		if(e.score > bestfive[k]) {
+			int tmp = bestfive[k];
+			bestfive[k] = e.score;
+			e.score = tmp;
+		}
+	}
+	//este loop volta a inserir os valor dos scores no ficheiro
+	FILE *newscores = freopen("scores.txt", "w", scores); // esta linha assegura que os valores anteriores do ficheiro são apagados e assim fica melhor para escrever os novos valores que estão no array
+	for(int j = 0; j < 5; j++) {
+		fprintf(newscores, "%d\n", bestfive[j]);
+	}
+}
+
 
 int main() {
 	srandom(time(NULL));
