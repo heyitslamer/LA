@@ -10,7 +10,7 @@
 #define ESCALA			40
 
 void imprime_saida(ESTADO e);
-void guarda_jogo(ESTADO e);
+void inicializar_five_best();
 
 int posicao_valida(int x, int y) {
 	return (x >= 0 && y >= 0 && x < TAM && y < TAM);
@@ -51,6 +51,18 @@ int tem_jogador(ESTADO e, int x, int y) {
 	return posicao_igual(e.jog, x, y);
 }
 
+int close_player(ESTADO e, int x, int y) {
+
+	int dx, dy;
+
+	for(dx = -2; dx <= 2; dx++)
+		for(dy = -2; dy <= 2; dy++)
+			if(tem_jogador(e, x + dx, y + dy))
+				return 1;
+
+	return 0;
+}
+
 int tem_casa_saida(ESTADO e, int x, int y) {
 	return posicao_igual(e.fim, x, y);
 }
@@ -59,7 +71,7 @@ int posicao_ocupada(ESTADO e, int x, int y) {
 	//return tem inimigo(e, x, y) || tem_obstaculo(e, x, y)
 	if (tem_inimigo(e, x, y) || tem_obstaculo(e, x, y) || tem_jogador(e, x, y) || tem_casa_saida(e, x, y))
 		return 1;
-
+	
 	return 0;
 }
 
@@ -70,7 +82,7 @@ ESTADO inicializar_inimigo(ESTADO e) {
 	do {
 		x = random() % TAM;
 		y = random() % TAM;
-	} while (posicao_ocupada(e, x, y));
+	} while (posicao_ocupada(e, x, y) || close_player(e, x, y));
 
 	e.inimigo[(int)e.num_inimigos].x = x;
 	e.inimigo[(int)e.num_inimigos].y = y;
@@ -136,6 +148,12 @@ ESTADO inicializar() {
 	return e;
 }
 
+ESTADO level_up(ESTADO e) {
+	ESTADO new = inicializar();
+	new.score = e.score + 10;
+	return new;
+}
+
 void imprime_movimento(ESTADO e, int dx, int dy) {
 	ESTADO novo = e;
 	int x = e.jog.x + dx;
@@ -143,7 +161,7 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 	char link[MAX_BUFFER];
 	if(posicao_valida(x, y) && !tem_obstaculo(e, x, y)) {
 		if(tem_casa_saida(e, x, y)) {
-			novo = inicializar();
+			novo = level_up(novo);
 		} else {
 			novo.jog.x = x;
 			novo.jog.y = y;
@@ -152,7 +170,6 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 		ABRIR_LINK(link);
 		imprime_casa_transparente(x, y);
 		FECHAR_LINK;
-
 	}
 }
 
@@ -201,18 +218,18 @@ ESTADO swap_ini(ESTADO e, int x) {
 	e.inimigo[(int)e.num_inimigos - 1] = tmp;
 
 	return e;
-
+	
 }
 
 ESTADO mata_monstros(ESTADO e) {
-
+	
 	int i;
 
 	for(i = 0; i < e.num_inimigos; i++) {
 		if(e.jog.x == e.inimigo[i].x && e.jog.y == e.inimigo[i].y) {
 			e = swap_ini(e, i);
 			e.num_inimigos--;
-			e.score++;
+			e.score += 3;
 			break;
 		}
 	}
@@ -273,43 +290,54 @@ ESTADO mover_inimigos(ESTADO e) {
 	return e;
 }
 
-void guarda_jogo(ESTADO e) {
-	char *state = estado2str(e);
-	FILE *save = fopen("save.txt", "w+");
-	fprintf(save, "%s", state);
-	fclose(save);
-}
 
-void inicializar_five_best() {
-	FILE *scores = fopen("score.txt", "r+");
-	for(int i = 0; i < 5; i++) {
-		fputs("0\n", scores);
-	}
-	fclose(scores);
-}
+void score_manage(int score) {
 
-void five_best(ESTADO e) {
-	FILE *scores = fopen("scores.txt", "r+");
-	int bestfive[5];
-	int i;
-	//este loop percorre o ficheiro e passa todos os scores para um array
-	for(i = 0; i < 5; i++) {
-		fscanf(scores, "%d", bestfive+i);
-		scores++;
+	FILE *scores = fopen("./score/scores.txt", "r+");
+	int fivebest[5];
+	int i, tmp1, tmp2;
+
+	tmp1 = tmp2 = 0;
+
+	if(!score) {
+		scores = fopen("./score/scores.txt", "w");
+		
+		fprintf(scores, "%d\n", score);
+
+		for(i = 0; i < 4; i++)
+			fprintf(scores, "0\n");
+		
 	}
-	//este loop insere o score atual no array e remove o mais pequeno
-	for(int k = 0; k < 5; k++) {
-		if(e.score > bestfive[k]) {
-			int tmp = bestfive[k];
-			bestfive[k] = e.score;
-			e.score = tmp;
+	else {
+		for(i = 0; i < 5; i++) {
+			fscanf(scores, "%d", fivebest + i);
+			fseek(scores, sizeof(char), SEEK_CUR);
 		}
+
+		for(i = 0; i < 5 && score < fivebest[i]; i++);
+
+		if(i >= 0 && i < 5) {
+			tmp1 = fivebest[i];
+			fivebest[i] = score;
+			i++;
+			while(i < 4) {
+				tmp2 = fivebest[i];
+				fivebest[i] = tmp1;
+				tmp1 = tmp2;
+				i++;
+			}
+			fivebest[i] = tmp1;
+		}
+
+		fseek(scores, 0, SEEK_SET);
+
+		for(i = 0; i < 5; i++)
+			fprintf(scores, "%d\n", fivebest[i]);
+
 	}
-	//este loop volta a inserir os valor dos scores no ficheiro
-	FILE *newscores = freopen("scores.txt", "w", scores); // esta linha assegura que os valores anteriores do ficheiro são apagados e assim fica melhor para escrever os novos valores que estão no array
-	for(int j = 0; j < 5; j++) {
-		fprintf(newscores, "%d\n", bestfive[j]);
-	}
+
+	fclose(scores);
+
 }
 
 
@@ -320,17 +348,19 @@ int main() {
 
 	e = mata_monstros(e);
 	// percorrer array de inimigos, ver se coincide com jogador e remover
-
+	
 	e = mata_jogador(e);
-
+	// funcao que ve se o jogador se encontra num sitio para levar dano
+	
 	e = mover_inimigos(e);
-	// ver se pos ta ocupada. mover inicialmente aletoriamente(entre -1 e 1), e.g prov de monstro se mexer
+	// ver se pos ta ocupada. mover inicialmente aletoriamente(entre -1 e 1), e.g prov de monstro se mexer 
 
 
 	COMECAR_HTML;
 	ABRIR_SVG(600, 600);
 
 	if(e.vida <= 0) {
+		score_manage(e.score);
 		ABRIR_LINK("http://localhost/cgi-bin/exemplo");
 		QUADRADO(0, 0, 600, "#7C7474");
 		FECHAR_LINK;
@@ -346,8 +376,8 @@ int main() {
 	imprime_jogador(e);
 	imprime_obstaculos(e);
 
-
 	}
 	FECHAR_SVG;
+
 	return 0;
 }
