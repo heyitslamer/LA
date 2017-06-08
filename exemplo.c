@@ -10,7 +10,6 @@
 #define ESCALA			40
 
 void imprime_saida(ESTADO e);
-void inicializar_five_best();
 
 int posicao_valida(int x, int y) {
 	return (x >= 0 && y >= 0 && x < TAM && y < TAM);
@@ -68,7 +67,6 @@ int tem_casa_saida(ESTADO e, int x, int y) {
 }
 
 int posicao_ocupada(ESTADO e, int x, int y) {
-	//return tem inimigo(e, x, y) || tem_obstaculo(e, x, y)
 	if (tem_inimigo(e, x, y) || tem_obstaculo(e, x, y) || tem_jogador(e, x, y) || tem_casa_saida(e, x, y))
 		return 1;
 	
@@ -80,8 +78,8 @@ ESTADO inicializar_inimigo(ESTADO e) {
 	int x, y;
 
 	do {
-		x = random() % TAM;
-		y = random() % TAM;
+		x = rand() % TAM;
+		y = rand() % TAM;
 	} while (posicao_ocupada(e, x, y) || close_player(e, x, y));
 
 	e.inimigo[(int)e.num_inimigos].x = x;
@@ -107,8 +105,8 @@ ESTADO inicializar_obstaculo(ESTADO e) {
 	int x, y;
 
 	do {
-		x = random() % TAM;
-		y = random() % TAM;
+		x = rand() % TAM;
+		y = rand() % TAM;
 	} while (posicao_ocupada(e, x, y));
 
 	e.obstaculo[(int)e.num_obstaculos].x = x;
@@ -137,7 +135,7 @@ ESTADO inicializar_saida(ESTADO e) {
 }
 
 ESTADO inicializar() {
-	ESTADO e = {{0}};
+	ESTADO e = {{0, 0}, (char)0, (char)0, 0, 0, {{0, 0}}, {{0, 0}}, {0, 0}};
 	e.jog.x = 5;
 	e.jog.y = 9;
 	e = inicializar_saida(e);
@@ -172,8 +170,6 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 		FECHAR_LINK;
 	}
 }
-
-//to do imprime_casa_transparente
 
 void imprime_movimentos(ESTADO e) {
 	int dx, dy;
@@ -277,18 +273,30 @@ ESTADO mover_inimigos(ESTADO e) {
 
 	int i, dx, dy;
 
-	dx = (random() % 3) - 1;
-	dy = (random() % 3) - 1;
+	dx = (rand() % 3) - 1;
+	dy = (rand() % 3) - 1;
 
 	for(i = 0; i < e.num_inimigos; i++) {
-		dx = (random() % 3) - 1;
-		dy = (random() % 3) - 1;
+		dx = (rand() % 3) - 1;
+		dy = (rand() % 3) - 1;
 		if(check_pos(e, i, dx, dy))
 			e = move_inimigo(e, i, dx, dy);
 	}
 
 	return e;
 }
+
+/**
+void save_state(char s[]) {
+
+	FILE *f = fopen("./score/state.txt", "r+");
+	if(!f) {
+		f = fopen("./score/state.txt", "w+");
+		
+	}
+
+}
+*/
 
 
 void score_manage(int score) {
@@ -300,7 +308,7 @@ void score_manage(int score) {
 	tmp1 = tmp2 = 0;
 
 	if(!score) {
-		scores = fopen("./score/scores.txt", "w");
+		scores = fopen("./score/scores.txt", "w+");
 		
 		fprintf(scores, "%d\n", score);
 
@@ -310,8 +318,8 @@ void score_manage(int score) {
 	}
 	else {
 		for(i = 0; i < 5; i++) {
-			fscanf(scores, "%d", fivebest + i);
-			fseek(scores, sizeof(char), SEEK_CUR);
+			if(fscanf(scores, "%d", fivebest + i) == 1)
+				fseek(scores, 1, SEEK_CUR);
 		}
 
 		for(i = 0; i < 5 && score < fivebest[i]; i++);
@@ -342,18 +350,23 @@ void score_manage(int score) {
 
 
 int main() {
-	srandom(time(NULL));
+	
 	int x, y;
-	ESTADO e = ler_estado(getenv("QUERY_STRING"));
+	ESTADO e;
+
+	srand(time(NULL));
+	e = ler_estado(getenv("QUERY_STRING"));
+
+	/**
+		ler_estado a partir de ficheiro,  query_string passa a ser o nome de um utilizador, accoes sao coordendas, perguntar ao diogo??
+	*/
 
 	e = mata_monstros(e);
-	// percorrer array de inimigos, ver se coincide com jogador e remover
 	
 	e = mata_jogador(e);
-	// funcao que ve se o jogador se encontra num sitio para levar dano
 	
 	e = mover_inimigos(e);
-	// ver se pos ta ocupada. mover inicialmente aletoriamente(entre -1 e 1), e.g prov de monstro se mexer 
+	
 
 
 	COMECAR_HTML;
