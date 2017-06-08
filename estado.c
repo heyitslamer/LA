@@ -6,7 +6,7 @@
 char *estado2str(ESTADO e) {
 	static char buffer[MAX_BUFFER];
 	char *p = (char *) &e;
-	int i;
+	int unsigned i;
 
 	buffer[0] = 0;
 
@@ -19,10 +19,10 @@ char *estado2str(ESTADO e) {
 ESTADO str2estado(char *argumentos) {
 	ESTADO e;
 	char *p = (char *) &e;
-	int i;
+	int unsigned i;
 
 	for(i = 0; i < sizeof(ESTADO); i++, argumentos += 2) {
-		int d;
+		int unsigned d;
 		sscanf(argumentos, "%2x", &d);
 		p[i] = (char) d;
 	}
