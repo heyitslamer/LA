@@ -248,9 +248,12 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 	char link[MAX_BUFFER];
 	if(posicao_valida(x, y) && !tem_obstaculo(e, x, y)) {
 		if(tem_casa_saida(e, x, y)) {
-			save(level_up(e));			
+			save(level_up(e));
+			sprintf(link, "http://localhost/cgi-bin/exemplo");
 		}
-		sprintf(link, "http://localhost/cgi-bin/exemplo?x=%d&y=%d", x, y);
+		else {
+			sprintf(link, "http://localhost/cgi-bin/exemplo?x=%d&y=%d", x, y);
+		}
 		ABRIR_LINK(link);
 		imprime_casa_transparente(x, y);
 		FECHAR_LINK;
@@ -485,7 +488,7 @@ void score_manage(int score) {
 \brief Função principal do programa
 */
 int main() {
-	/** Variaveis que auxiliam a impressão do tabuleiro */
+	/** Variaveis que auxiliam a impressão do tabuleiro e duas que eram guardar dados relativos a query string */
 	int x, y, qx, qy;
 	/** Variavel de estado */
 	ESTADO e;
@@ -493,8 +496,6 @@ int main() {
 	char state[MAX_BUFFER];
 	/** */
 	char *querry;
-	/** */
-	x = 0; y = 9;
 	/** Função que fornece uma seed à função srand */
 	srand(time(NULL));
 	/** */
@@ -503,15 +504,14 @@ int main() {
 	if(strlen(querry) > 0) {
 		sscanf(querry, "x=%d&y=%d", &qx, &qy);
 	}
+	else {
+		qx = 4;
+		qy = 9;
+	}
 	/** Carrega o estado(sob o formato de string) no ficheiro para uma string */
 	load(state);
 	/** Transforma o estado carregado sob a forma de uma string para a estrutura estado */
 	e = ler_estado(state);
-	/** */
-	if(qx == e.fim.x && qy == e.fim.y) {
-		qx = 4;
-		qx = 9;
-	}
 	/** atualizar a posicao do jogador em relaçao ao eixo do x */
 	e.jog.x = qx;
 	/** atualizar a poscaio do jogador em relacao ao eixo do y */
