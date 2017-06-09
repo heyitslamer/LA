@@ -226,6 +226,7 @@ ESTADO inicializar_obstaculos(ESTADO e, int num) {
 /**
 \brief Função que inicializa a casa de saida
 @param Estado O estado atual do jogo
+@returns Estado O estado com a pos da saida inicializada
 */
 ESTADO inicializar_saida(ESTADO e) {
 	e.fim.x = 9;
@@ -253,6 +254,7 @@ ESTADO inicializar() {
 /**
 \brief Função que faz level up quando um jogador finaliza um nivel
 @param Estado O estado atual do jogo
+@returns ESTADO Um estado equivalente ao recebido com o score atribuido por ter passado de nivel
 */
 ESTADO level_up(ESTADO e) {
 	ESTADO new = inicializar();
@@ -291,7 +293,6 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 	char link[MAX_BUFFER];
 	if(posicao_valida(x, y) && !tem_obstaculo(e, x, y)) {
 		if(tem_casa_saida(e, x, y)) {
-			save(level_up(e));
 			sprintf(link, "http://localhost/cgi-bin/exemplo");
 		}
 		else {
