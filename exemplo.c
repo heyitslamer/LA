@@ -5,66 +5,67 @@
 #include "cgi.h"
 #include "estado.h"
 
+/** \brief O tamanho maximo do buffer */
 #define MAX_BUFFER		10240
+/** \brief Tamanho utilizado pelas macros definidas em cgi.h */
 #define TAM				10
+/** \brief Escala utilizado pelas macros definidas em cgi.h */
 #define ESCALA			40
+/** \brief A posicao std do jogador para o eixo do x*/
+#define STDX			5
+/** \brief A posicao std do jogador para o eixo do y*/
+#define STDY			9
 
 /**
 @file exemplo.c
 Ficheiro que contem a logica principal do jogo
 */
 
-/** */
-void save(ESTADO e) {
-
-    FILE *fp; 
-    char *line;
-    line = estado2str(e);
-
-    fp = fopen("./score/state.txt", "w");
-
-    if(fp) {
-        fputs(line, fp);
-    }
-
-    fclose(fp);
-}
-
-/** \brief Verifica se uma posicao e valida
-	@param x a coordenada x
-	@param y a coordenada y
-	@returns Um inteiro */
+/** 
+\brief Verifica se uma posicao e valida
+@param x a coordenada x
+@param y a coordenada y
+@returns Um inteiro 
+*/
 int posicao_valida(int x, int y) {
 	return (x >= 0 && y >= 0 && x < TAM && y < TAM);
 }
-/** \brief Imprime as casas no tabuleiro
-	@param x a coordenada x
-	@param y a coordenada y
+
+/** 
+\brief Imprime as casas no tabuleiro
+@param x a coordenada x
+@param y a coordenada y
 */
 void imprime_casa(int x, int y) {
 	char *cor[] = {"#7C7474", "#FFFFFF"};
 	int idx = (x + y) % 2;
 	QUADRADO(x, y,ESCALA, cor[idx]);
 }
-/** \brief Funciona como a anterior, mas nao e vista, e simplesmente da para carregar
-	@param x a coordenada x
-	@param y a coordenada y */
+
+/** 
+\brief Funciona como a anterior, mas nao e vista, e simplesmente da para carregar
+@param x a coordenada x
+@param y a coordenada y */
 void imprime_casa_transparente(int x, int y) {
 	QUADRADO_TRANS(x, y, ESCALA);
 }
-/** \brief verifica se duas posicoes sao iguais
-		@param p Posicao p
-		@param x a coordenada x
-		@param y a coordenada y
-		@returns 0 ou 1  */
+
+/** 
+\brief verifica se duas posicoes sao iguais
+@param p Posicao p
+@param x a coordenada x
+@param y a coordenada y
+@returns 0 ou 1  */
 int posicao_igual(POSICAO p, int x, int y) {
 	return p.x == x && p.y == y;
 }
-/** \brief Verifica se ha um obstaculo numa posicao
-	@param e Estado e
-	@param x a coordenada x
-	@param y a coordenada y
-	@returns Que da return a 1 se houver um obstaculo e da return a 0 se nao houver */
+
+/** 
+\brief Verifica se ha um obstaculo numa posicao
+@param e Estado e
+@param x a coordenada x
+@param y a coordenada y
+@returns Que da return a 1 se houver um obstaculo e da return a 0 se nao houver */
 int tem_obstaculo(ESTADO e, int x, int y) {
 	int i;
 	for(i = 0; i < e.num_obstaculos; i++)
@@ -72,11 +73,13 @@ int tem_obstaculo(ESTADO e, int x, int y) {
 			return 1;
 	return 0;
 }
-/** \brief Verifica se tem inimigo numa posicao
-	@param e Estado e
-	@param x a coordenada x
-	@param y a coordenada y
-	@returns Que da return a 1 se houver um obstaculo e da return a 0 se nao houver */
+
+/** 
+\brief Verifica se tem inimigo numa posicao
+@param e Estado e
+@param x a coordenada x
+@param y a coordenada y
+@returns Que da return a 1 se houver um obstaculo e da return a 0 se nao houver */
 int tem_inimigo(ESTADO e, int x, int y) {
 	int i;
 	for(i = 0; i < e.num_inimigos; i++)
@@ -84,20 +87,25 @@ int tem_inimigo(ESTADO e, int x, int y) {
 			return 1;
 	return 0;
 }
-/** \brief Verifica se ha um jogador numa posicao
-	@param e Estado e
-	@param x a coordenada x
-	@param y a coordenada y
-	@returns 1 se houver um jogador ou 0 se nao houver */
+
+/** 
+\brief Verifica se ha um jogador numa posicao
+@param e Estado e
+@param x a coordenada x
+@param y a coordenada y
+@returns 1 se houver um jogador ou 0 se nao houver */
 int tem_jogador(ESTADO e, int x, int y) {
 
 	return posicao_igual(e.jog, x, y);
 }
-/** \brief Verifica se o jogador esta a uma casa de distancia de algo (obstaculo, inimigo, jogador ou saida)
-	@param e Estado e
-	@param x a coordenada x
-	@param y a coordenada y
-	@returns 1 se houver algo e 0 se nao houver*/
+
+/** 
+\brief Verifica se o jogador esta a uma casa de distancia de algo (obstaculo, inimigo, jogador ou saida)
+@param e Estado e
+@param x a coordenada x
+@param y a coordenada y
+@returns 1 se houver algo e 0 se nao houver
+*/
 int close_player(ESTADO e, int x, int y) {
 
 	int dx, dy;
@@ -109,14 +117,18 @@ int close_player(ESTADO e, int x, int y) {
 
 	return 0;
 }
-/** \brief Verifica se esta na casa de saida
-	@param e Estado e
-	@param x a coordenada x
-	@param y a coordenada y
-	@returns 1 se estiver ou 0 caso contrario*/
+
+/** 
+\brief Verifica se esta na casa de saida
+@param e Estado e
+@param x a coordenada x
+@param y a coordenada y
+@returns 1 se estiver ou 0 caso contrario
+*/
 int tem_casa_saida(ESTADO e, int x, int y) {
 	return posicao_igual(e.fim, x, y);
 }
+
 /**
 \brief Função que verifica se uma posição está ocupada ou não
 @param Estado O estado atual do jogo
@@ -151,6 +163,7 @@ ESTADO inicializar_inimigo(ESTADO e) {
 
 	return e;
 }
+
 /**
 \brief Função para chamada da função inicializar_inimigo() para gerar a totalidade dos inimigos a serem gerados
 @param Estado O estado atual do jogo
@@ -166,6 +179,7 @@ ESTADO inicializar_inimigos(ESTADO e, int num) {
 
 	return e;
 }
+
 /**
 \brief Função para gerar um obstáculo numa posição random e a colocar no array de obstáculos
 @param Estado O estado atual do jogo
@@ -187,6 +201,7 @@ ESTADO inicializar_obstaculo(ESTADO e) {
 
 	return e;
 }
+
 /**
 \brief Função para chamada da função inicializar_obstaculo() para gerar a totalidade dos obstáculos a serem gerados
 @param Estado O estado atual do jogo
@@ -202,6 +217,7 @@ ESTADO inicializar_obstaculos(ESTADO e, int num) {
 
 	return e;
 }
+
 /**
 \brief Função que inicializa a casa de saida
 @param Estado O estado atual do jogo
@@ -212,14 +228,15 @@ ESTADO inicializar_saida(ESTADO e) {
 
 	return e;
 }
+
 /**
 \brief Função que inicializa o estado de jogo
 @returns O estado inicial do jogo
 */
 ESTADO inicializar() {
 	ESTADO e = {{0, 0}, (char)0, (char)0, 0, 0, {{0, 0}}, {{0, 0}}, {0, 0}};
-	e.jog.x = 5;
-	e.jog.y = 9;
+	e.jog.x = STDX;
+	e.jog.y = STDY;
 	e = inicializar_saida(e);
 	e = inicializar_inimigos(e, 10);
 	e = inicializar_obstaculos(e, 10);
@@ -227,6 +244,7 @@ ESTADO inicializar() {
 	e.score = 0;
 	return e;
 }
+
 /**
 \brief Função que faz level up quando um jogador finaliza um nivel
 @param Estado O estado atual do jogo
@@ -236,6 +254,26 @@ ESTADO level_up(ESTADO e) {
 	new.score = e.score + 10;
 	return new;
 }
+
+/**
+\brief Função que guarda o estado num ficheiro
+@param Estado O estado a ser guardado
+*/
+void save(ESTADO e) {
+
+    FILE *fp; 
+    char *line;
+    line = estado2str(e);
+
+    fp = fopen("./score/state.txt", "w");
+
+    if(fp) {
+        fputs(line, fp);
+    }
+
+    fclose(fp);
+}
+
 /**
 \brief Função que processa o movimento do jogador
 @param Estado O estado atual do jogo
@@ -259,6 +297,7 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 		FECHAR_LINK;
 	}
 }
+
 /**
 \brief Função que imprime o movimento feito pelo jogador
 @param Estado O estado atual do jogo
@@ -271,6 +310,7 @@ void imprime_movimentos(ESTADO e) {
 			if (dx != 0 || dy != 0)
 				imprime_movimento(e, dx, dy);
 }
+
 /**
 \brief Função que imprime o jogador no tabuleiro
 @param Estado O estado atual do jogo
@@ -279,15 +319,18 @@ void imprime_jogador(ESTADO e) {
 	IMAGEM(e.jog.x, e.jog.y, ESCALA, "DwellerN_03.png");
 	imprime_movimentos(e);
 }
+
 /**
 \brief Função para ler o estado do jogo a partir de uma query string
-@param
+@param char* recebe o apontador para o estado convertido numa string
+@returns Estado O estado depois de ser transformado 
 */
 ESTADO ler_estado(char *args) {
 	if(strlen(args) == 0)
 		return inicializar();
 	return str2estado(args);
 }
+
 /**
 \brief Função que imprime no tabuleiro os inimigos
 @param Estado O estado atual do jogo
@@ -297,6 +340,7 @@ void imprime_inimigos(ESTADO e) {
 	for(i = 0; i < e.num_inimigos; i++)
 		IMAGEM(e.inimigo[i].x, e.inimigo[i].y, ESCALA, "Driders_04.png");
 }
+
 /**
 \brief Função para imprimir no tabuleiro a casa de saida(casa de finalização de nivel)
 @param Estado O estado atual do jogo
@@ -304,6 +348,7 @@ void imprime_inimigos(ESTADO e) {
 void imprime_saida(ESTADO e) {
 	IMAGEM(e.fim.x, e.fim.y, ESCALA, "trapdoor1.png");
 }
+
 /**
 \brief Função que imprime obstáculos no tabuleiro
 @param Estado Recebe o estado do jogo atual
@@ -313,6 +358,7 @@ void imprime_obstaculos(ESTADO e) {
 	for(i = 0; i < e.num_obstaculos; i++)
 		IMAGEM(e.obstaculo[i].x, e.obstaculo[i].y, ESCALA, "lava_pool1.png");
 }
+
 /**
 \brief Função que troca a posição de um inimigo no array de inimigos para a ultima posição do array
 @param Estado Estado atual do jogo
@@ -328,6 +374,7 @@ ESTADO swap_ini(ESTADO e, int x) {
 	return e;
 
 }
+
 /**
 \brief Função que mata inimigos
 @param Estado Recebe o estado atual do jogo
@@ -348,6 +395,7 @@ ESTADO mata_monstros(ESTADO e) {
 
 	return e;
 }
+
 /**
 \brief Função que verifica a vida do jogador e o mata caso esta seja menor do que 0
 @param Estado O estado atual do jogo
@@ -369,6 +417,7 @@ ESTADO mata_jogador(ESTADO e) {
 	return e;
 
 }
+
 /**
 \brief Função que move inimigos
 @param Estado Estado atual do jogo
@@ -385,6 +434,7 @@ ESTADO move_inimigo(ESTADO e, int i, int dx, int dy) {
 	return e;
 
 }
+
 /**
 \brief Função que verifica se uma posição é valida
 @param Estado Estado atual do jogo
@@ -393,7 +443,6 @@ ESTADO move_inimigo(ESTADO e, int i, int dx, int dy) {
 @param dy Deslocamento em y
 @returns 1 se posição válida, 0 se contrário
 */
-
 int check_pos(ESTADO e, int i, int dx, int dy) {
 	if(dx == 0 && dy == 0)
 		return 1;
@@ -402,10 +451,11 @@ int check_pos(ESTADO e, int i, int dx, int dy) {
 		 && posicao_valida(e.inimigo[i].x + dx, e.inimigo[i].y + dy));
 	}
 }
+
 /**
-	\brief Função que move inimigos
-	@param estado O estado do jogo atual
-	@returns O estado depois da manipulação
+\brief Função que move inimigos
+@param estado O estado do jogo atual
+@returns O estado depois da manipulação
  */
 ESTADO mover_inimigos(ESTADO e) {
 
@@ -421,6 +471,10 @@ ESTADO mover_inimigos(ESTADO e) {
 	return e;
 }
 
+/** 
+\brief carrega o estado guardado num ficheiro para uma string
+@param char[] A string que recebe o estado guardado no ficheiro
+*/
 void load(char state[]) {
     FILE *fp;
 
@@ -436,6 +490,10 @@ void load(char state[]) {
 
 }
 
+/**
+\brief Função que trata de guardar os scores no respetivo ficheiro assim como ordena-los
+@param int O score a ser registado no ficheiro
+ */
 void score_manage(int score) {
 
 	FILE *scores = fopen("./score/scores.txt", "r+");
@@ -484,6 +542,7 @@ void score_manage(int score) {
 	fclose(scores);
 
 }
+
 /**
 \brief Função principal do programa
 */
@@ -494,19 +553,20 @@ int main() {
 	ESTADO e;
 	/** String que armazena o estado */
 	char state[MAX_BUFFER];
-	/** */
+	/** String que guarda a querry string*/
 	char *querry;
 	/** Função que fornece uma seed à função srand */
 	srand(time(NULL));
-	/** */
+	/** Utiliza se a getenv para nos dar a query string em forma de string*/
 	querry = getenv("QUERY_STRING");
-	/** */
+	/** Verfica-se se a querry string e vazia ou nao*/
 	if(strlen(querry) > 0) {
 		sscanf(querry, "x=%d&y=%d", &qx, &qy);
 	}
 	else {
-		qx = 4;
-		qy = 9;
+		/** No caso de ser a string vazia o jogador vai para a pos standard */
+		qx = STDX;
+		qy = STDY;
 	}
 	/** Carrega o estado(sob o formato de string) no ficheiro para uma string */
 	load(state);
@@ -523,7 +583,7 @@ int main() {
 	e = mata_jogador(e);
 	/** Chamada da função mover_inimigos() */
 	e = mover_inimigos(e);
-	/** */
+	/** Guarda o estado depois de manipulado para o ficheiro respetivo */
 	save(e);
 
 	/** Macro para iniciar o formato HTML */
