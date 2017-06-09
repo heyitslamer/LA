@@ -45,7 +45,8 @@ void imprime_casa(int x, int y) {
 /** 
 \brief Funciona como a anterior, mas nao e vista, e simplesmente da para carregar
 @param x a coordenada x
-@param y a coordenada y */
+@param y a coordenada y
+*/
 void imprime_casa_transparente(int x, int y) {
 	QUADRADO_TRANS(x, y, ESCALA);
 }
@@ -55,7 +56,8 @@ void imprime_casa_transparente(int x, int y) {
 @param p Posicao p
 @param x a coordenada x
 @param y a coordenada y
-@returns 0 ou 1  */
+@returns 0 ou 1  
+*/
 int posicao_igual(POSICAO p, int x, int y) {
 	return p.x == x && p.y == y;
 }
@@ -65,7 +67,8 @@ int posicao_igual(POSICAO p, int x, int y) {
 @param e Estado e
 @param x a coordenada x
 @param y a coordenada y
-@returns Que da return a 1 se houver um obstaculo e da return a 0 se nao houver */
+@returns Que da return a 1 se houver um obstaculo e da return a 0 se nao houver 
+*/
 int tem_obstaculo(ESTADO e, int x, int y) {
 	int i;
 	for(i = 0; i < e.num_obstaculos; i++)
@@ -79,7 +82,8 @@ int tem_obstaculo(ESTADO e, int x, int y) {
 @param e Estado e
 @param x a coordenada x
 @param y a coordenada y
-@returns Que da return a 1 se houver um obstaculo e da return a 0 se nao houver */
+@returns Que da return a 1 se houver um obstaculo e da return a 0 se nao houver 
+*/
 int tem_inimigo(ESTADO e, int x, int y) {
 	int i;
 	for(i = 0; i < e.num_inimigos; i++)
@@ -93,7 +97,8 @@ int tem_inimigo(ESTADO e, int x, int y) {
 @param e Estado e
 @param x a coordenada x
 @param y a coordenada y
-@returns 1 se houver um jogador ou 0 se nao houver */
+@returns 1 se houver um jogador ou 0 se nao houver 
+*/
 int tem_jogador(ESTADO e, int x, int y) {
 
 	return posicao_igual(e.jog, x, y);
