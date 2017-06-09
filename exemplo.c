@@ -14,6 +14,22 @@
 Ficheiro que contem a logica principal do jogo
 */
 
+/** */
+void save(ESTADO e) {
+
+    FILE *fp; 
+    char *line;
+    line = estado2str(e);
+
+    fp = fopen("./score/state.txt", "w");
+
+    if(fp) {
+        fputs(line, fp);
+    }
+
+    fclose(fp);
+}
+
 /** \brief Verifica se uma posicao e valida
 	@param x a coordenada x
 	@param y a coordenada y
@@ -227,18 +243,14 @@ ESTADO level_up(ESTADO e) {
 @param dy Deslocamento em y do jogador
 */
 void imprime_movimento(ESTADO e, int dx, int dy) {
-	ESTADO novo = e;
 	int x = e.jog.x + dx;
 	int y = e.jog.y + dy;
 	char link[MAX_BUFFER];
 	if(posicao_valida(x, y) && !tem_obstaculo(e, x, y)) {
 		if(tem_casa_saida(e, x, y)) {
-			novo = level_up(novo);
-		} else {
-			novo.jog.x = x;
-			novo.jog.y = y;
+			save(level_up(e));			
 		}
-		sprintf(link, "http://localhost/cgi-bin/exemplo?%s", estado2str(novo));
+		sprintf(link, "http://localhost/cgi-bin/exemplo?x=%d&y=%d", x, y);
 		ABRIR_LINK(link);
 		imprime_casa_transparente(x, y);
 		FECHAR_LINK;
@@ -396,9 +408,6 @@ ESTADO mover_inimigos(ESTADO e) {
 
 	int i, dx, dy;
 
-	dx = (rand() % 3) - 1;
-	dy = (rand() % 3) - 1;
-
 	for(i = 0; i < e.num_inimigos; i++) {
 		dx = (rand() % 3) - 1;
 		dy = (rand() % 3) - 1;
@@ -409,18 +418,20 @@ ESTADO mover_inimigos(ESTADO e) {
 	return e;
 }
 
-/**
-void save_state(char s[]) {
+void load(char state[]) {
+    FILE *fp;
 
-	FILE *f = fopen("./score/state.txt", "r+");
-	if(!f) {
-		f = fopen("./score/state.txt", "w+");
+    fp = fopen("./score/state.txt", "r");
 
-	}
+    if(fp) {
+    	if(fscanf(fp, "%s", state) == 0) {
+
+    	}
+    }
+
+    fclose(fp);
 
 }
-*/
-
 
 void score_manage(int score) {
 
@@ -473,26 +484,47 @@ void score_manage(int score) {
 /**
 \brief Função principal do programa
 */
-
 int main() {
 	/** Variaveis que auxiliam a impressão do tabuleiro */
-	int x, y;
+	int x, y, qx, qy;
 	/** Variavel de estado */
 	ESTADO e;
+	/** String que armazena o estado */
+	char state[MAX_BUFFER];
+	/** */
+	char *querry;
+	/** */
+	x = 0; y = 9;
 	/** Função que fornece uma seed à função srand */
 	srand(time(NULL));
-	/** Função que vai ao ambiente buscar a QUERY_STRING e a transforma num estado */
-	e = ler_estado(getenv("QUERY_STRING"));
+	/** */
+	querry = getenv("QUERY_STRING");
+	/** */
+	if(strlen(querry) > 0) {
+		sscanf(querry, "x=%d&y=%d", &qx, &qy);
+	}
+	/** Carrega o estado(sob o formato de string) no ficheiro para uma string */
+	load(state);
+	/** Transforma o estado carregado sob a forma de uma string para a estrutura estado */
+	e = ler_estado(state);
+	/** */
+	if(qx == e.fim.x && qy == e.fim.y) {
+		qx = 4;
+		qx = 9;
+	}
+	/** atualizar a posicao do jogador em relaçao ao eixo do x */
+	e.jog.x = qx;
+	/** atualizar a poscaio do jogador em relacao ao eixo do y */
+	e.jog.y = qy;
 
-	/**
-		ler_estado a partir de ficheiro,  query_string passa a ser o nome de um utilizador, accoes sao coordendas, perguntar ao diogo??
-	*/
 	/** Chamada da função mata_monstros() */
 	e = mata_monstros(e);
 	/** Chamada da função mata_jogador() */
 	e = mata_jogador(e);
 	/** Chamada da função mover_inimigos() */
 	e = mover_inimigos(e);
+	/** */
+	save(e);
 
 	/** Macro para iniciar o formato HTML */
 	COMECAR_HTML;
@@ -510,6 +542,8 @@ int main() {
 		@param e.score, score do jogador
 		*/
 		score_manage(e.score);
+		/** guarda um estado novo para ser aberto */
+		save(inicializar());
 		/**
 		Macro para abrir link
 		@param link
