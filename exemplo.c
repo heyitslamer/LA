@@ -292,12 +292,7 @@ void imprime_movimento(ESTADO e, int dx, int dy) {
 	int y = e.jog.y + dy;
 	char link[MAX_BUFFER];
 	if(posicao_valida(x, y) && !tem_obstaculo(e, x, y)) {
-		if(tem_casa_saida(e, x, y)) {
-			sprintf(link, "http://localhost/cgi-bin/exemplo");
-		}
-		else {
-			sprintf(link, "http://localhost/cgi-bin/exemplo?x=%d&y=%d", x, y);
-		}
+		sprintf(link, "http://localhost/cgi-bin/exemplo?x=%d&y=%d", x, y);
 		ABRIR_LINK(link);
 		imprime_casa_transparente(x, y);
 		FECHAR_LINK;
@@ -487,8 +482,9 @@ void load(char state[]) {
     fp = fopen("./score/state.txt", "r");
 
     if(fp) {
-    	if(fscanf(fp, "%s", state) == 0) {
-
+    	if(fscanf(fp, "%[^,]", state) == 0) {
+    		fclose(fp);
+    		return;
     	}
     }
 
@@ -565,7 +561,7 @@ int main() {
 	srand(time(NULL));
 	/** Utiliza se a getenv para nos dar a query string em forma de string*/
 	querry = getenv("QUERY_STRING");
-	/** Verfica-se se a querry string e vazia ou nao*/
+	/** Verfica-se se a querry string e vazia ou nao */
 	if(strlen(querry) > 0) {
 		sscanf(querry, "x=%d&y=%d", &qx, &qy);
 	}
@@ -583,12 +579,18 @@ int main() {
 	/** atualizar a poscaio do jogador em relacao ao eixo do y */
 	e.jog.y = qy;
 
-	/** Chamada da função mata_monstros() */
-	e = mata_monstros(e);
-	/** Chamada da função mata_jogador() */
-	e = mata_jogador(e);
-	/** Chamada da função mover_inimigos() */
-	e = mover_inimigos(e);
+
+	if(tem_casa_saida(e, e.jog.x, e.jog.y) == 1) {
+		e = level_up(e);
+	}
+	else {
+		/** Chamada da função mata_monstros() */
+		e = mata_monstros(e);
+		/** Chamada da função mata_jogador() */
+		e = mata_jogador(e);
+		/** Chamada da função mover_inimigos() */
+		e = mover_inimigos(e);
+	}
 	/** Guarda o estado depois de manipulado para o ficheiro respetivo */
 	save(e);
 
