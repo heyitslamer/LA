@@ -3,6 +3,11 @@
 
 #define MAX_BUFFER		10240
 
+/**
+\brief Função que transforma um estado numa string que contem a sua informação
+@param Estado O estado a ser transformado
+@returns char* Um apontador para uma string do estado transformado 
+*/
 char *estado2str(ESTADO e) {
 	static char buffer[MAX_BUFFER];
 	char *p = (char *) &e;
@@ -16,6 +21,11 @@ char *estado2str(ESTADO e) {
 	return buffer;
 }
 
+/**
+\brief Função que faz o inverso da anterior, transforma uma string no estado equivalente
+@param char* A string a ser transformada para um estado
+@returns Estado O estado produzido da transformação da String
+*/
 ESTADO str2estado(char *argumentos) {
 	ESTADO e;
 	char *p = (char *) &e;

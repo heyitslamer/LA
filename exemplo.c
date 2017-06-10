@@ -105,7 +105,7 @@ int tem_jogador(ESTADO e, int x, int y) {
 }
 
 /** 
-\brief Verifica se o jogador esta a uma casa de distancia de algo (obstaculo, inimigo, jogador ou saida)
+\brief Verifica se o jogador esta a uma casa de distancia de algo
 @param e Estado e
 @param x a coordenada x
 @param y a coordenada y
@@ -600,7 +600,7 @@ int main() {
 	Chamada da macro para iniciar um SVG
 	@param 600, 600, é o tamanho do SVG
 	*/
-	ABRIR_SVG(600, 600);
+	ABRIR_SVG(1000, 600);
 	/**
 	Condicional que auxilia a impressão de mapa e a manipulação de scores
 	@param e.vida, vida atual do jogador
@@ -619,9 +619,9 @@ int main() {
 		ABRIR_LINK("http://localhost/cgi-bin/exemplo");
 		/**
 		Macro para desenhar um quadrado
-		@param posx, posy, tam, cor, Parametros do quadrado
+		@param posx, posy, tam, path, parametros da imagem
 		*/
-		QUADRADO(0, 0, 600, "#7C7474");
+		IMAGEM(0, 0, 550, "hqdefault.png");
 		/**
 		Macro para fechar link
 		*/
