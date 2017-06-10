@@ -502,7 +502,7 @@ void score_manage(int score) {
 	int fivebest[5];
 	int i, tmp1, tmp2;
 
-	tmp1 = tmp2 = 0;
+	i = tmp1 = tmp2 = 0;
 
 	if(!score) {
 		scores = fopen("./score/scores.txt", "w+");
@@ -514,10 +514,7 @@ void score_manage(int score) {
 
 	}
 	else {
-		for(i = 0; i < 5; i++) {
-			if(fscanf(scores, "%d", fivebest + i) == 1)
-				fseek(scores, 1, SEEK_CUR);
-		}
+		while(fscanf(scores, "%d", fivebest + i++) == 1);
 
 		for(i = 0; i < 5 && score < fivebest[i]; i++);
 
