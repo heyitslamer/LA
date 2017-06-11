@@ -543,6 +543,26 @@ void score_manage(int score) {
 }
 
 /**
+\brief Função que trata da impressão do score atual e das vidas
+@param Estado O estado atual do jogo, para obter o score e a vida a serem impressas
+*/
+void print_aux(ESTADO e) {
+
+	int i, cdrx, print_space;
+	cdrx = 483;
+	print_space = 22;
+
+	printf("<text x=%d y=66 font-family = \"serif\">Vidas:</text>\n", cdrx);
+	for(i = 0; i < e.vida; i++) {
+		IMAGEM(print_space, 2, 25, "heart.png");
+		print_space++;
+	}
+
+	printf("<text x=%d y=90 font-family = \"serif\">Score:</text>\n", cdrx);
+	printf("<text x=%d y=90 font-family = \"serif\">%d</text>\n",cdrx + 54, e.score);
+}
+
+/**
 \brief Função principal do programa
 */
 int main() {
@@ -597,7 +617,7 @@ int main() {
 	Chamada da macro para iniciar um SVG
 	@param 600, 600, é o tamanho do SVG
 	*/
-	ABRIR_SVG(1000, 600);
+	ABRIR_SVG(1000, 1000);
 	/**
 	Condicional que auxilia a impressão de mapa e a manipulação de scores
 	@param e.vida, vida atual do jogador
@@ -628,9 +648,9 @@ int main() {
 		/** Ciclo para imprimir o tabuleiro */
 		for(y = 0; y < 10; y++)
 			for(x = 0; x < 10; x++)
-				/** Chamada da função imprime_casa()
-				@param x, y, Posição a imprimir
-				*/
+					/** Chamada da função imprime_casa()
+					@param x, y, Posição a imprimir
+					*/
 					imprime_casa(x, y);
 	/** Chamada da função imprime_inimigos()
 	@param e, Estado
@@ -648,7 +668,10 @@ int main() {
 	@param e, Estado
 	 */
 	imprime_obstaculos(e);
-
+	/** Chamada da funcção que trata da impressão das vidas e dos score 
+	@param e Recebe o estado do jogo para receber a vida e o score atual
+	*/
+	print_aux(e);
 	}
 	/** Macro para fechar SVG */
 	FECHAR_SVG;
