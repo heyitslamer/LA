@@ -1,5 +1,8 @@
 #include "cgi.h"
 
+/**
+@file Pequeno programa que imprime o menu do jogo
+*/
 
 int main() {
 
@@ -21,4 +24,6 @@ int main() {
 	FECHAR_LINK;
 
 	FECHAR_SVG;
+
+	return 0;
 }

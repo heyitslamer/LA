@@ -1,5 +1,10 @@
 #include "cgi.h"
 
+
+/**
+@file Programa responsavel por imprimir a pagina about relativa ao trabalho
+*/
+
 int main() {
 
 	COMECAR_HTML;
@@ -29,6 +34,8 @@ int main() {
 		FECHAR_LINK;
 
 	FECHAR_SVG;
+
+	return 0;
 
 }
 
